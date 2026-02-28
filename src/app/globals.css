@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-dm-sans: 'DM Sans', system-ui, sans-serif;
+  --font-jetbrains-mono: 'JetBrains Mono', 'Menlo', monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background-color: #0A0A0B;
+  color: #ffffff;
+  font-family: var(--font-dm-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Subtle noise texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2A2A2E;
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3A3A3E;
+}
+
+/* Selection */
+::selection {
+  background: rgba(212, 165, 116, 0.2);
+  color: #fff;
+}
+
+/* Glass morphism utility */
+.glass {
+  backdrop-filter: blur(12px);
+  background: rgba(17, 17, 19, 0.7);
+  border: 1px solid rgba(42, 42, 46, 0.6);
+}
+
+/* Code blocks in markdown */
+pre code {
+  font-family: var(--font-jetbrains-mono);
+}
+
+/* Animated gradient background for landing page */
+.gradient-bg {
+  background: radial-gradient(ellipse at 20% 50%, rgba(212, 165, 116, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(212, 165, 116, 0.04) 0%, transparent 50%),
+    #0A0A0B;
+}
