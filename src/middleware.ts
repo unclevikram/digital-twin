@@ -1,19 +1,7 @@
-import { auth } from '@/auth'
-
-export default auth((req) => {
-  const { nextUrl } = req
-  const isLoggedIn = !!req.auth
-
-  // Only protect the ingest trigger — chat and the main UI are fully public
-  const isProtectedRoute =
-    nextUrl.pathname === '/api/ingest' ||
-    nextUrl.pathname.startsWith('/api/ingest/')
-
-  if (isProtectedRoute && !isLoggedIn) {
-    return Response.redirect(new URL('/', nextUrl))
-  }
-})
+// No middleware auth needed — route handlers enforce their own auth where required.
+// Previously this blocked /api/ingest/status which broke the public status check.
+export { auth as default } from '@/auth'
 
 export const config = {
-  matcher: ['/api/ingest/:path*'],
+  matcher: [],
 }
