@@ -2,7 +2,6 @@ import { streamText } from 'ai'
 import { createOpenAI } from '@ai-sdk/openai'
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { auth } from '@/auth'
 import { retrieveContext } from '@/lib/rag/retriever'
 import { buildContext } from '@/lib/rag/context-builder'
 import { buildSystemPrompt } from '@/lib/rag/prompts'
@@ -28,11 +27,6 @@ const requestSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth()
-    if (!session?.user || !session.accessToken || !session.user.login) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
     const body = await request.json()
     const parsed = requestSchema.safeParse(body)
 
@@ -101,8 +95,10 @@ export async function POST(request: NextRequest) {
       .filter(Boolean)
       .join('\n')
 
-    const githubToken = session.accessToken
-    const githubLogin = session.user.login
+    // Use server-side GitHub PAT — set GITHUB_TOKEN + GITHUB_LOGIN in env vars.
+    // Without these the live GitHub tools fail gracefully but RAG chat still works.
+    const githubToken = env.GITHUB_TOKEN ?? ''
+    const githubLogin = env.GITHUB_LOGIN ?? ''
     const githubTools = buildGitHubTools(githubToken, githubLogin)
     const allowNotionTools = /\bnotion|notes|docs|research|project\b/i.test(queryText)
     

@@ -1,7 +1,6 @@
 'use client'
 
 import { Tooltip } from '@/components/ui/tooltip'
-import { IngestionButton } from '@/components/ingestion/ingestion-button'
 
 interface HeaderProps {
   debugMode: boolean
@@ -21,8 +20,6 @@ export function Header({ debugMode, onToggleDebug }: HeaderProps) {
 
         {/* Debug toggle */}
         <div className="flex items-center gap-3">
-          <IngestionButton />
-          
           <Tooltip content={debugMode ? 'Hide debug panel' : 'Show RAG debug'}>
           <button
             onClick={onToggleDebug}

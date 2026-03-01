@@ -9,6 +9,10 @@ const envSchema = z.object({
   OPENAI_API_KEY: z.string().startsWith('sk-', 'OpenAI API key must start with sk-'),
   NOTION_API_KEY: z.string().min(1).optional(),
   NEXT_PUBLIC_APP_URL: z.string().url().default('http://localhost:3000'),
+  // Used for live GitHub tool calls — set this to a GitHub PAT with repo+read:user scope.
+  // Without it the GitHub tools will fail gracefully but RAG chat still works.
+  GITHUB_TOKEN: z.string().optional(),
+  GITHUB_LOGIN: z.string().optional(),
 })
 
 function parseEnv() {
