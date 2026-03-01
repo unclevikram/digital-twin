@@ -1,27 +1,97 @@
 [
   {
-    "question": "What is your primary programming language?",
-    "expected_answer_keywords": ["TypeScript", "JavaScript", "Python", "Go", "Rust", "Jupyter"],
-    "criteria": "The answer should identify the primary language based on repo stats."
+    "id": "language-profile-01",
+    "question": "What programming languages do I use the most?",
+    "intent": "profile_summary",
+    "requiredSources": [
+      {
+        "source": "github",
+        "type": "language_summary"
+      }
+    ],
+    "mustMention": ["[S", "language"],
+    "forbiddenClaims": ["I cannot access your data"],
+    "notes": "Should ground language ranking in language summary chunks."
   },
   {
-    "question": "What have you been working on recently?",
-    "expected_answer_keywords": ["commit", "repository", "project", "feature"],
-    "criteria": "The answer should mention specific repositories or recent commits/PRs."
+    "id": "recent-activity-01",
+    "question": "What have I been working on recently?",
+    "intent": "recent_activity",
+    "requiredSources": [
+      {
+        "source": "github",
+        "type": "commit"
+      },
+      {
+        "source": "github",
+        "type": "pull_request"
+      }
+    ],
+    "mustMention": ["[S", "recent"],
+    "forbiddenClaims": ["based on assumptions only"],
+    "notes": "Should cite activity chunks and avoid generic summaries."
   },
   {
-    "question": "Do you have any experience with React?",
-    "expected_answer_keywords": ["React", "frontend", "component", "hook"],
-    "criteria": "The answer should confirm or deny based on the codebase analysis."
+    "id": "react-experience-01",
+    "question": "Do I have React experience?",
+    "intent": "skills_lookup",
+    "requiredSources": [
+      {
+        "source": "github",
+        "type": "repo_overview"
+      }
+    ],
+    "mustMention": ["react", "[S"],
+    "forbiddenClaims": ["I don't have enough context"],
+    "notes": "Should answer directly with evidence from repos/readmes."
   },
   {
-    "question": "Tell me about a challenging bug you fixed.",
-    "expected_answer_keywords": ["bug", "fix", "issue", "debug", "refactor"],
-    "criteria": "The answer should describe a specific issue or PR if available in the data."
+    "id": "system-design-01",
+    "question": "How do I approach system design in my projects?",
+    "intent": "engineering_principles",
+    "requiredSources": [
+      {
+        "source": "github",
+        "type": "readme"
+      },
+      {
+        "source": "notion"
+      }
+    ],
+    "mustMention": ["[S", "tradeoff"],
+    "forbiddenClaims": ["I am just guessing"],
+    "notes": "Should combine repo docs and Notion notes when available."
   },
   {
+    "id": "notion-summary-01",
     "question": "What is in my Notion notes?",
-    "expected_answer_keywords": ["Notion", "page", "note", "doc"],
-    "criteria": "The answer should reference content from ingested Notion pages if available, or state that none are found."
+    "intent": "notion_lookup",
+    "requiredSources": [
+      {
+        "source": "notion",
+        "type": "notion_page"
+      }
+    ],
+    "mustMention": ["notion", "[S"],
+    "forbiddenClaims": ["I do not have Notion integration"],
+    "notes": "Should gracefully cite Notion evidence or communicate absence."
+  },
+  {
+    "id": "bug-fix-01",
+    "question": "Tell me about a challenging bug I fixed.",
+    "intent": "project_story",
+    "requiredSources": [
+      {
+        "source": "github",
+        "type": "issue"
+      },
+      {
+        "source": "github",
+        "type": "pull_request"
+      }
+    ],
+    "mustMention": ["[S", "fix"],
+    "forbiddenClaims": ["fabricated", "imaginary"],
+    "notes": "Should avoid fabricated anecdotes and remain evidence-backed."
   }
 ]

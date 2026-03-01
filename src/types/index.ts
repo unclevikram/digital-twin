@@ -6,7 +6,7 @@
 
 export interface Message {
   id: string
-  role: 'user' | 'assistant' | 'system'
+  role: 'user' | 'assistant'
   content: string
   createdAt?: Date
   sources?: ChunkSource[]
@@ -14,11 +14,22 @@ export interface Message {
 }
 
 export interface ChunkSource {
+  sourceId: string
+  source: 'github' | 'notion'
+  title?: string
   repo?: string
   type: string
+  section?: string
   date?: string
   url?: string
+  snippet?: string
   score: number
+}
+
+export interface RetrievalConfidence {
+  level: 'high' | 'medium' | 'low'
+  score: number
+  reason: string
 }
 
 export interface RetrievalDebugInfo {
@@ -28,11 +39,18 @@ export interface RetrievalDebugInfo {
   searchTimeMs: number
   totalChunksSearched: number
   topScores: number[]
+  confidence: RetrievalConfidence
   chunks: Array<{
+    sourceId: string
+    source: 'github' | 'notion'
     text: string
     score: number
     type: string
     repo?: string
+    title?: string
+    section?: string
+    date?: string
+    url?: string
   }>
 }
 
@@ -93,6 +111,7 @@ export type ChunkType =
 export interface ChunkMetadata {
   type: ChunkType
   source: 'github' | 'notion'
+  visibility?: 'public_professional' | 'private_personal' | 'sensitive'
   repo?: string // For GitHub
   pageId?: string // For Notion
   title?: string // For Notion
@@ -111,6 +130,7 @@ export interface DataChunk {
 }
 
 export interface SearchResult {
+  id?: string
   text: string
   score: number
   metadata: ChunkMetadata

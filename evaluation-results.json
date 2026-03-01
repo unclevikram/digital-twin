@@ -1,34 +1,173 @@
-[
-  {
-    "question": "What is your primary programming language?",
-    "answer": "My primary programming language, based on my GitHub repositories, is Jupyter Notebook, which accounts for 50.3% of my work.",
-    "score": 4,
-    "reasoning": "The answer is grounded in the provided context, as it correctly identifies Jupyter Notebook as the primary programming language based on the GitHub repository statistics. It is relevant to the user's question about the primary programming language. However, it lacks completeness because it does not mention other significant languages like TypeScript, Python, or JavaScript, which are also part of the expected keywords. Including these would provide a more comprehensive view of the language usage.",
-    "retrievalTime": 1430,
-    "chunksFound": 10
+{
+  "summary": {
+    "generatedAt": "2026-03-01T04:10:50.985Z",
+    "totalCases": 6,
+    "averageFinalScore": 4.168,
+    "averageRetrievalRecall": 0.75,
+    "averageCitationCount": 2.3333333333333335
   },
-  {
-    "question": "What have you been working on recently?",
-    "answer": "Recently, I've been working on the `anlp-final-project`. The most recent commits from November 2025 include adding office hours prep docs and critical analysis, as well as syncing local changes. This project seems to be actively updated with various datasets and documentation enhancements. If you need more specific details about this project or any other recent work, feel free to ask!",
-    "score": 3,
-    "reasoning": "The answer is partially grounded in the provided context, as it correctly identifies the 'anlp-final-project' and mentions recent commits from November 2025. However, the context does not support the claim that the project is 'actively updated' since the latest commit is from November 2025, which is in the future relative to the current date. The answer is relevant to the user's question about recent work, but it lacks completeness as it does not mention other recent projects or commits, such as the 'product-review-engine' with commits from August 2023, which are more recent than the 'anlp-final-project'.",
-    "retrievalTime": 1146,
-    "chunksFound": 10
-  },
-  {
-    "question": "Do you have any experience with React?",
-    "answer": "Yes, I have experience with React. One of my projects, `blog-react`, is a React blog app that I developed. This project was bootstrapped with Create React App, which is a common starting point for React applications. You can find more details about this project on its [GitHub repository](https://github.com/unclevikram/blog-react).",
-    "score": 4,
-    "reasoning": "The answer is well-grounded in the provided context, as it references the 'blog-react' project, which is indeed a React app bootstrapped with Create React App. It is relevant to the user's question about experience with React, as it confirms the presence of a React project. However, the answer could be more complete by mentioning specific React concepts or features used in the project, such as components or hooks, to better align with the expected keywords and provide a more detailed confirmation of experience.",
-    "retrievalTime": 1016,
-    "chunksFound": 10
-  },
-  {
-    "question": "Tell me about a challenging bug you fixed.",
-    "answer": "I don't have specific details about individual bugs I've fixed, as my current data doesn't include detailed bug tracking or issue logs. However, I can share a general approach I take when tackling challenging bugs.\n\nWhen faced with a difficult bug, I typically start by reproducing the issue in a controlled environment. This helps me understand the conditions under which the bug occurs. I then use debugging tools and logs to trace the execution flow and identify where things go wrong. \n\nFor instance, in projects like the `product-review-engine`, which I last worked on in August 2023, I might have encountered issues related to code refactoring or test failures. In such cases, I would ensure that the refactored code maintains the same functionality and that all tests pass successfully after changes.\n\nIf you have a specific project or bug in mind, I can look into the repository details to provide more context.",
-    "score": 2,
-    "reasoning": "The answer lacks groundedness as it does not reference any specific bug or issue from the provided context. While it mentions a general approach to debugging and references the 'product-review-engine' project, it does not provide specific details about a challenging bug fixed in that or any other project. The response is somewhat relevant as it discusses debugging, but it does not fully answer the user's question about a specific challenging bug. The completeness is lacking because it does not cover key details about a particular bug or fix, which was expected based on the evaluation criteria.",
-    "retrievalTime": 786,
-    "chunksFound": 10
-  }
-]
+  "results": [
+    {
+      "id": "language-profile-01",
+      "question": "What programming languages do I use the most?",
+      "answer": "Based on my GitHub repositories, the programming languages I use the most are Jupyter Notebook (48.4%), CSS (16.2%), and TypeScript (15.4%) [S1].",
+      "retrievalTimeMs": 3406,
+      "retrievalMetrics": {
+        "requiredSourceCount": 1,
+        "matchedRequiredSources": 1,
+        "recallAtK": 1,
+        "sourceDiversity": 5,
+        "topScore": 0.6478936841018452,
+        "confidenceScore": 0.6384917308437924
+      },
+      "answerMetrics": {
+        "citationCount": 1,
+        "mustMentionCoverage": 1,
+        "forbiddenClaimHits": 0
+      },
+      "judgeMetrics": {
+        "groundedness": 5,
+        "relevance": 5,
+        "completeness": 4,
+        "citationAccuracy": 5,
+        "reasoning": "The assistant's answer is well-grounded in the retrieved evidence from [S1], which provides a clear breakdown of the programming languages used based on GitHub repositories. The answer is directly relevant to the user's question about the most used programming languages. It covers the core details by listing the top three languages by percentage, which is a reasonable interpretation of 'most used.' However, it could be considered slightly incomplete as it does not mention all the languages listed in the context, which might be expected for full completeness. The citation is accurate and correctly references the source [S1] where the information was found."
+      },
+      "finalScore": 4.561999999999999
+    },
+    {
+      "id": "recent-activity-01",
+      "question": "What have I been working on recently?",
+      "answer": "Recently, I've been working on the \"anlp-final-project\" repository. Some of the latest activities include adding office hours preparation documents and critical analysis, as well as syncing local changes. These updates were made on November 24, 2025 [S1]. If you need more detailed information about specific tasks or projects, feel free to ask!",
+      "retrievalTimeMs": 690,
+      "retrievalMetrics": {
+        "requiredSourceCount": 2,
+        "matchedRequiredSources": 1,
+        "recallAtK": 0.5,
+        "sourceDiversity": 7,
+        "topScore": 0.447781021523848,
+        "confidenceScore": 0.5013350671794582
+      },
+      "answerMetrics": {
+        "citationCount": 1,
+        "mustMentionCoverage": 1,
+        "forbiddenClaimHits": 0
+      },
+      "judgeMetrics": {
+        "groundedness": 5,
+        "relevance": 5,
+        "completeness": 4,
+        "citationAccuracy": 5,
+        "reasoning": "The assistant's answer is well-grounded in the retrieved evidence, specifically citing [S1] for the recent activities in the 'anlp-final-project' repository. The answer is relevant as it directly addresses the user's question about recent work activities. It provides specific details about the most recent commits, which is the core detail expected in response to the question. However, the completeness could be slightly improved by mentioning other recent activities or projects if available, but given the context, the focus on the 'anlp-final-project' is appropriate. The citation is accurate and correctly references the source of the information."
+      },
+      "finalScore": 4.212
+    },
+    {
+      "id": "react-experience-01",
+      "question": "Do I have React experience?",
+      "answer": "Yes, I have experience with React. I have worked on several projects that involve React, such as the \"blog-react\" project, which is a React blog app bootstrapped with Create React App [S1][S2]. Additionally, the \"docker-frontend\" project was also initialized using Create React App, indicating my familiarity with React in that context as well [S5].",
+      "retrievalTimeMs": 921,
+      "retrievalMetrics": {
+        "requiredSourceCount": 1,
+        "matchedRequiredSources": 1,
+        "recallAtK": 1,
+        "sourceDiversity": 7,
+        "topScore": 0.5435108091494074,
+        "confidenceScore": 0.5857954598686027
+      },
+      "answerMetrics": {
+        "citationCount": 3,
+        "mustMentionCoverage": 1,
+        "forbiddenClaimHits": 0
+      },
+      "judgeMetrics": {
+        "groundedness": 5,
+        "relevance": 5,
+        "completeness": 5,
+        "citationAccuracy": 5,
+        "reasoning": "The assistant's answer is well-grounded in the retrieved evidence. It directly answers the user's question about React experience by citing specific projects ('blog-react' and 'docker-frontend') that involve React, as supported by the sources [S1], [S2], and [S5]. The answer is complete as it covers the core details of the user's experience with React, mentioning the use of Create React App, which is a relevant detail. The citations are accurate and meaningful, as they correctly reference the sources that provide evidence of the user's React experience."
+      },
+      "finalScore": 4.856
+    },
+    {
+      "id": "system-design-01",
+      "question": "How do I approach system design in my projects?",
+      "answer": "When approaching system design in my projects, I focus on several key aspects to ensure a robust and scalable solution:\n\n1. **Understanding Requirements:** I start by thoroughly understanding the functional requirements of the system. This includes identifying the target users, the features needed, and any specific constraints or considerations. For example, in a project for an eCommerce platform, I considered features like review scores, photos, and localization for reviews written in different languages [S1].\n\n2. **Scalability and Extensibility:** I design systems with scalability in mind, ensuring they can handle increased loads and are extensible for future changes. For instance, in a project involving a top-k score application, I used a simple heap and made sure the low-level design (LLD) was extensible to accommodate new changes [S1].\n\n3. **Design Patterns and Principles:** I apply design patterns and principles such as SOLID, OOP, and polymorphism to create maintainable and efficient systems. For example, I have implemented the Factory Pattern and ensured thread safety using the Singleton Pattern in Java [S3].\n\n4. **Handling Heavy Traffic:** I consider load handling strategies for events with heavy traffic, such as major sales, and explore design patterns like the Orchestrator Microservice Pattern to manage complex workflows [S1].\n\n5. **Database and Data Flow:** I discuss the role of databases and how to scale them for a large user base. In one of my projects, I used Kafka as a queue between services to manage data flow efficiently [S3].\n\n6. **Review and Iteration:** After the initial design, I review and iterate on the design based on feedback and testing. This includes considering edge cases, potential bottlenecks, and opportunities for optimization.\n\nBy focusing on these aspects, I aim to create systems that are not only functional but also robust and adaptable to future needs.",
+      "retrievalTimeMs": 824,
+      "retrievalMetrics": {
+        "requiredSourceCount": 2,
+        "matchedRequiredSources": 2,
+        "recallAtK": 1,
+        "sourceDiversity": 6,
+        "topScore": 0.4508800502588389,
+        "confidenceScore": 0.4949554676120588
+      },
+      "answerMetrics": {
+        "citationCount": 5,
+        "mustMentionCoverage": 0.5,
+        "forbiddenClaimHits": 0
+      },
+      "judgeMetrics": {
+        "groundedness": 4,
+        "relevance": 5,
+        "completeness": 4,
+        "citationAccuracy": 3,
+        "reasoning": "The assistant's answer is well-grounded in the retrieved evidence, particularly in its discussion of understanding requirements, scalability, and handling heavy traffic, which are supported by [S1]. However, the mention of design patterns and principles like SOLID, OOP, and polymorphism, as well as specific patterns like the Factory and Singleton Patterns, are not directly supported by the retrieved context, which affects the citation accuracy. The answer is highly relevant to the user's question about approaching system design, as it directly addresses key aspects of system design. It is also fairly complete, covering important elements such as requirements, scalability, design patterns, and iteration. However, the citation accuracy is somewhat lacking because some claims are not directly linked to the provided sources."
+      },
+      "finalScore": 4.28
+    },
+    {
+      "id": "notion-summary-01",
+      "question": "What is in my Notion notes?",
+      "answer": "Your Notion notes cover a variety of topics. Here's a brief overview:\n\n1. **Tech-Related Thoughts**: You have notes on debugging issues, such as the importance of using `.equals()` for comparing Integer objects in Java, and insights on Java parallel streams and the JVM [S1].\n\n2. **Personal Reflections**: There are reflections on how activities like running have impacted your life, and musings on technology's role in our lives, such as the necessity of phones and AirPods [S1].\n\n3. **Ideas and Projects**: You have ideas for tools and applications, such as a reconciliation tool, a Chrome plugin for interacting with GPT, and concepts for betting platforms [S2].\n\n4. **Writing and Communication**: There are notes on improving writing by keeping it succinct and avoiding overly technical language [S3].\n\nIf you have specific questions about any of these topics or need more details, feel free to ask!",
+      "retrievalTimeMs": 724,
+      "retrievalMetrics": {
+        "requiredSourceCount": 1,
+        "matchedRequiredSources": 1,
+        "recallAtK": 1,
+        "sourceDiversity": 4,
+        "topScore": 0.4570049416603615,
+        "confidenceScore": 0.5082170449463618
+      },
+      "answerMetrics": {
+        "citationCount": 4,
+        "mustMentionCoverage": 1,
+        "forbiddenClaimHits": 0
+      },
+      "judgeMetrics": {
+        "groundedness": 5,
+        "relevance": 5,
+        "completeness": 5,
+        "citationAccuracy": 5,
+        "reasoning": "The assistant's answer is well-grounded in the retrieved context, accurately reflecting the content of the Notion notes. It directly addresses the user's question by summarizing the topics found in the notes, such as tech-related thoughts, personal reflections, ideas and projects, and writing and communication. The answer is complete, covering the core details expected from the provided excerpts. Source citations are used correctly and meaningfully, with each point in the summary linked to the appropriate source section (e.g., [S1], [S2], [S3])."
+      },
+      "finalScore": 4.928
+    },
+    {
+      "id": "bug-fix-01",
+      "question": "Tell me about a challenging bug I fixed.",
+      "answer": "I don't have specific details about a challenging bug I fixed from the context provided. However, I can share a general approach I take when tackling challenging bugs:\n\n1. **Reproduce the Issue:** I start by trying to reproduce the bug consistently. This helps in understanding the conditions under which the bug occurs.\n\n2. **Isolate the Problem:** Once reproduced, I isolate the problem by narrowing down the code paths and identifying the exact location in the code where the issue arises.\n\n3. **Analyze and Debug:** I use debugging tools and logs to analyze the state of the application at the point of failure. This often involves checking variable states, function calls, and data flows.\n\n4. **Research and Hypothesize:** If the bug is complex, I research similar issues or consult documentation to understand if there are known solutions or workarounds.\n\n5. **Implement and Test:** After identifying the root cause, I implement a fix and test it thoroughly to ensure the bug is resolved and no new issues are introduced.\n\n6. **Review and Document:** Finally, I review the changes with peers and document the bug and its resolution for future reference.\n\nIf you have a specific project or bug in mind, I can look up more detailed information.",
+      "retrievalTimeMs": 785,
+      "retrievalMetrics": {
+        "requiredSourceCount": 2,
+        "matchedRequiredSources": 0,
+        "recallAtK": 0,
+        "sourceDiversity": 6,
+        "topScore": 0.40934271185749593,
+        "confidenceScore": 0.46112020562471523
+      },
+      "answerMetrics": {
+        "citationCount": 0,
+        "mustMentionCoverage": 0.5,
+        "forbiddenClaimHits": 0
+      },
+      "judgeMetrics": {
+        "groundedness": 2,
+        "relevance": 3,
+        "completeness": 3,
+        "citationAccuracy": 1,
+        "reasoning": "The assistant's answer is not well-grounded in the retrieved context, as there is no specific information about a challenging bug fix in the provided excerpts. The response is somewhat relevant as it outlines a general approach to fixing bugs, which could be applicable to the user's question. However, it does not directly answer the user's request for a specific challenging bug they fixed. The completeness is moderate because it provides a general process for bug fixing but lacks specific details or examples. Citation accuracy is low because the assistant does not use the source citations [S#] meaningfully or correctly, as the response is not directly supported by the retrieved context."
+      },
+      "finalScore": 2.17
+    }
+  ]
+}

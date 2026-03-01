@@ -24,6 +24,8 @@ export function ChatContainer({ onDebugInfo }: ChatContainerProps) {
   // Track per-message debug info and sources (keyed by message ID index)
   const debugInfoRef = useRef<Map<string, RetrievalDebugInfo>>(new Map())
   const sourcesRef = useRef<Map<string, ChunkSource[]>>(new Map())
+  const pendingDebugRef = useRef<RetrievalDebugInfo | null>(null)
+  const pendingSourcesRef = useRef<ChunkSource[] | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const prevMsgCountRef = useRef(0)
 
@@ -35,7 +37,19 @@ export function ChatContainer({ onDebugInfo }: ChatContainerProps) {
       if (debugHeader) {
         try {
           const debug = JSON.parse(decodeURIComponent(debugHeader)) as RetrievalDebugInfo & {
-            chunks: Array<{ text: string; score: number; type: string; repo?: string }>
+            chunks: Array<{
+              sourceId: string
+              source: 'github' | 'notion'
+              text: string
+              score: number
+              type: string
+              repo?: string
+              title?: string
+              section?: string
+              date?: string
+              url?: string
+            }>
+            sources?: ChunkSource[]
           }
           // Will be associated with the next assistant message
           const debugInfo: RetrievalDebugInfo = {
@@ -45,18 +59,37 @@ export function ChatContainer({ onDebugInfo }: ChatContainerProps) {
             searchTimeMs: debug.searchTimeMs,
             totalChunksSearched: debug.totalChunksSearched,
             topScores: debug.topScores,
+            confidence: debug.confidence,
             chunks: debug.chunks,
           }
           onDebugInfo(debugInfo)
-          // Store for future message association
-          ;(window as typeof window & { _pendingDebug?: RetrievalDebugInfo })._pendingDebug =
-            debugInfo
+          pendingDebugRef.current = debugInfo
+          pendingSourcesRef.current = debug.sources ?? []
         } catch {
           // Ignore parse errors
         }
       }
     },
   })
+
+  // Associate pending retrieval debug/sources with the next assistant message.
+  useEffect(() => {
+    if (!pendingDebugRef.current) return
+
+    const latestAssistant = [...messages]
+      .reverse()
+      .find((m) => m.role === 'assistant' && m.content.trim().length > 0)
+    if (!latestAssistant) return
+
+    if (!debugInfoRef.current.has(latestAssistant.id)) {
+      debugInfoRef.current.set(latestAssistant.id, pendingDebugRef.current)
+      if (pendingSourcesRef.current) {
+        sourcesRef.current.set(latestAssistant.id, pendingSourcesRef.current)
+      }
+      pendingDebugRef.current = null
+      pendingSourcesRef.current = null
+    }
+  }, [messages])
 
   // Check ingestion status on mount
   useEffect(() => {
@@ -111,13 +144,13 @@ export function ChatContainer({ onDebugInfo }: ChatContainerProps) {
   const typedMessages: Message[] = messages
     .filter((m) => m.role !== 'assistant' || m.content.trim().length > 0)
     .map((m) => ({
-    id: m.id,
-    role: m.role as 'user' | 'assistant',
-    content: m.content,
-    createdAt: m.createdAt,
-    sources: sourcesRef.current.get(m.id),
-    debugInfo: debugInfoRef.current.get(m.id),
-  }))
+      id: m.id,
+      role: m.role as 'user' | 'assistant',
+      content: m.content,
+      createdAt: m.createdAt,
+      sources: sourcesRef.current.get(m.id),
+      debugInfo: debugInfoRef.current.get(m.id),
+    }))
 
   const showSuggestions = messages.length === 0 && setupState === 'ready'
 

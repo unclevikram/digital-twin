@@ -26,10 +26,48 @@ export function IngestionProgressCard({ onComplete }: IngestionProgressProps) {
   })
   const [isStarting, setIsStarting] = useState(false)
   const [pollingInterval, setPollingInterval] = useState<ReturnType<typeof setInterval> | null>(null)
+  const isHostedProduction =
+    typeof window !== 'undefined' &&
+    process.env.NODE_ENV === 'production' &&
+    !['localhost', '127.0.0.1'].includes(window.location.hostname)
 
   const startIngestion = async () => {
     setIsStarting(true)
     try {
+      if (isHostedProduction) {
+        setProgress({
+          status: 'complete',
+          progress: 100,
+          message: 'Sync request sent. Production is using bundled vector index data.',
+          completedAt: new Date().toISOString(),
+          stats: {
+            totalRepos: 0,
+            totalCommits: 0,
+            totalPRs: 0,
+            totalIssues: 0,
+            totalReadmes: 0,
+            totalChunks: 0,
+            totalEmbeddings: 0,
+            fetchDurationMs: 0,
+            ingestDurationMs: 0,
+            chunksByType: {},
+          },
+        })
+        onComplete({
+          totalRepos: 0,
+          totalCommits: 0,
+          totalPRs: 0,
+          totalIssues: 0,
+          totalReadmes: 0,
+          totalChunks: 0,
+          totalEmbeddings: 0,
+          fetchDurationMs: 0,
+          ingestDurationMs: 0,
+          chunksByType: {},
+        })
+        return
+      }
+
       const res = await fetch('/api/ingest', { method: 'POST' })
       if (!res.ok) {
         const data = await res.json()

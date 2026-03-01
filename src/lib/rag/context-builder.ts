@@ -1,18 +1,23 @@
 import { estimateTokens } from '@/lib/utils'
-import type { SearchResult } from '@/types'
+import type { ChunkSource, SearchResult } from '@/types'
 
 const MAX_CONTEXT_TOKENS = 8000
 
+export interface ContextBuildResult {
+  contextText: string
+  sources: ChunkSource[]
+}
+
 /**
- * Assembles retrieved chunks into a clean context block for the system prompt.
+ * Assembles retrieved chunks into a structured evidence context.
  *
- * - Deduplicates overlapping chunks (from README splits with overlap)
- * - Orders by relevance score (highest first)
- * - Truncates total context to MAX_CONTEXT_TOKENS
- * - Adds clear source markers the LLM can reference
+ * - Deduplicates overlapping chunks
+ * - Orders by score (highest first)
+ * - Truncates to token budget
+ * - Adds deterministic source IDs ([S1], [S2], ...)
  */
-export function buildContext(results: SearchResult[]): string {
-  if (results.length === 0) return ''
+export function buildContext(results: SearchResult[]): ContextBuildResult {
+  if (results.length === 0) return { contextText: '', sources: [] }
 
   // Sort by score descending
   const sorted = [...results].sort((a, b) => b.score - a.score)
@@ -22,10 +27,12 @@ export function buildContext(results: SearchResult[]): string {
 
   // Truncate to token budget
   const contextParts: string[] = []
+  const sources: ChunkSource[] = []
   let totalTokens = 0
 
-  for (const result of deduplicated) {
-    const chunkText = formatChunk(result)
+  for (const [index, result] of deduplicated.entries()) {
+    const sourceId = `S${index + 1}`
+    const chunkText = formatChunk(sourceId, result)
     const chunkTokens = estimateTokens(chunkText)
 
     if (totalTokens + chunkTokens > MAX_CONTEXT_TOKENS) {
@@ -33,21 +40,26 @@ export function buildContext(results: SearchResult[]): string {
       const remainingTokens = MAX_CONTEXT_TOKENS - totalTokens
       if (remainingTokens > 100) {
         const truncatedText = result.text.slice(0, remainingTokens * 4)
-        contextParts.push(formatChunk({ ...result, text: truncatedText + '...' }))
+        contextParts.push(formatChunk(sourceId, { ...result, text: truncatedText + '...' }))
+        sources.push(toChunkSource(sourceId, result))
       }
       break
     }
 
     contextParts.push(chunkText)
+    sources.push(toChunkSource(sourceId, result))
     totalTokens += chunkTokens
   }
 
-  return contextParts.join('\n\n---\n\n')
+  return {
+    contextText: contextParts.join('\n\n---\n\n'),
+    sources,
+  }
 }
 
-function formatChunk(result: SearchResult): string {
+function formatChunk(sourceId: string, result: SearchResult): string {
   const sourceLabel = buildSourceLabel(result)
-  return `[Source: ${sourceLabel}]\n${result.text}`
+  return `[${sourceId}] [Source: ${sourceLabel}]\n${result.text}`
 }
 
 function buildSourceLabel(result: SearchResult): string {
@@ -72,6 +84,21 @@ function buildSourceLabel(result: SearchResult): string {
   if (result.metadata.section) parts.push(`§${result.metadata.section}`)
 
   return parts.join(', ')
+}
+
+function toChunkSource(sourceId: string, result: SearchResult): ChunkSource {
+  return {
+    sourceId,
+    source: result.metadata.source,
+    title: result.metadata.title,
+    repo: result.metadata.repo,
+    type: result.metadata.type,
+    section: result.metadata.section,
+    date: result.metadata.date,
+    url: result.metadata.url,
+    snippet: result.text.slice(0, 280),
+    score: result.score,
+  }
 }
 
 /**

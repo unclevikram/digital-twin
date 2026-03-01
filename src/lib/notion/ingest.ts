@@ -2,6 +2,7 @@ import { notionClient } from './client'
 import { NotionToMarkdown } from 'notion-to-md'
 import { generateId, estimateTokens } from '@/lib/utils'
 import type { DataChunk } from '@/types'
+import { env } from '@/lib/env'
 
 const n2m = new NotionToMarkdown({ notionClient })
 
@@ -9,7 +10,7 @@ const MAX_TOKENS = 500
 const OVERLAP_TOKENS = 50
 
 export async function fetchAndChunkNotionPages(): Promise<DataChunk[]> {
-  if (!process.env.NOTION_API_KEY) {
+  if (!env.NOTION_API_KEY) {
     console.warn('NOTION_API_KEY not found, skipping Notion ingestion')
     return []
   }
@@ -40,29 +41,56 @@ export async function fetchAndChunkNotionPages(): Promise<DataChunk[]> {
 
     console.log(`Processing Notion page: ${title} (${pageId})`)
 
-    const mdBlocks = await n2m.pageToMarkdown(pageId)
-    const mdString = n2m.toMarkdownString(mdBlocks)
-    
-    if (!mdString.parent.trim()) continue
+    try {
+      const mdBlocks = await n2m.pageToMarkdown(pageId)
+      const markdown = extractMarkdownText(n2m.toMarkdownString(mdBlocks))
+      if (!markdown.trim()) {
+        console.log(`Skipping Notion page with empty markdown: ${title} (${pageId})`)
+        continue
+      }
 
-    const pageChunks = chunkNotionContent(mdString.parent, {
-      pageId,
-      title,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      url: (page as any).url,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      lastEdited: (page as any).last_edited_time,
-    })
+      const pageChunks = chunkNotionContent(markdown, {
+        pageId,
+        title,
+        visibility: inferNotionVisibility(title, markdown),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        url: (page as any).url,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        lastEdited: (page as any).last_edited_time,
+      })
 
-    chunks.push(...pageChunks)
+      chunks.push(...pageChunks)
+    } catch (err) {
+      console.warn(`Failed to process Notion page: ${title} (${pageId})`, err)
+      continue
+    }
   }
 
   return chunks
 }
 
+function extractMarkdownText(markdownOutput: unknown): string {
+  if (typeof markdownOutput === 'string') return markdownOutput
+  if (
+    typeof markdownOutput === 'object' &&
+    markdownOutput !== null &&
+    'parent' in markdownOutput &&
+    typeof (markdownOutput as { parent?: unknown }).parent === 'string'
+  ) {
+    return (markdownOutput as { parent: string }).parent
+  }
+  return ''
+}
+
 function chunkNotionContent(
   content: string,
-  meta: { pageId: string; title: string; url: string; lastEdited: string }
+  meta: {
+    pageId: string
+    title: string
+    visibility: 'public_professional' | 'private_personal' | 'sensitive'
+    url: string
+    lastEdited: string
+  }
 ): DataChunk[] {
   const chunks: DataChunk[] = []
   const prefix = `[Notion: ${meta.title}] `
@@ -84,6 +112,7 @@ function chunkNotionContent(
         metadata: {
           type: 'notion_page',
           source: 'notion',
+          visibility: meta.visibility,
           pageId: meta.pageId,
           title: meta.title,
           url: meta.url,
@@ -110,6 +139,7 @@ function chunkNotionContent(
       metadata: {
         type: 'notion_page',
         source: 'notion',
+        visibility: meta.visibility,
         pageId: meta.pageId,
         title: meta.title,
         url: meta.url,
@@ -119,4 +149,34 @@ function chunkNotionContent(
   }
 
   return chunks
+}
+
+function inferNotionVisibility(
+  title: string,
+  content: string,
+): 'public_professional' | 'private_personal' | 'sensitive' {
+  const combined = `${title}\n${content}`.toLowerCase()
+  const sensitivePatterns = [
+    'passport',
+    'ssn',
+    'credit card',
+    'bank account',
+    'medical',
+    'therapy',
+  ]
+  if (sensitivePatterns.some((term) => combined.includes(term))) return 'sensitive'
+
+  const personalPatterns = [
+    'grocery',
+    'laundry',
+    'photos backup',
+    'shopping',
+    'relationship',
+    'family',
+    'personal',
+    'habit tracker',
+  ]
+  if (personalPatterns.some((term) => combined.includes(term))) return 'private_personal'
+
+  return 'public_professional'
 }

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { auth } from '@/auth'
 import { getIngestionStatus } from '@/lib/ingestion/status'
 import { getVectorStore } from '@/lib/vector-store'
 
@@ -6,7 +7,13 @@ export const dynamic = 'force-dynamic'
 
 export async function GET() {
   try {
-    const status = getIngestionStatus('vikram')
+    const session = await auth()
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const userId = session.user.email ?? session.user.name ?? 'default'
+    const status = getIngestionStatus(userId)
 
     // If idle, check if there's already data in the vector store
     if (status.status === 'idle') {

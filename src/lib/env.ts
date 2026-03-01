@@ -7,6 +7,7 @@ const envSchema = z.object({
     .string()
     .min(32, 'AUTH_SECRET must be at least 32 characters. Generate with: openssl rand -hex 32'),
   OPENAI_API_KEY: z.string().startsWith('sk-', 'OpenAI API key must start with sk-'),
+  NOTION_API_KEY: z.string().min(1).optional(),
   NEXT_PUBLIC_APP_URL: z.string().url().default('http://localhost:3000'),
 })
 

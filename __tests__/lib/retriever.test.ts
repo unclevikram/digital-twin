@@ -5,10 +5,10 @@ import type { SearchResult } from '@/types'
 vi.mock('@/lib/vector-store', () => ({
   getVectorStore: () => ({
     search: vi.fn().mockResolvedValue([
-      { text: 'Python FastAPI backend', score: 0.85, metadata: { type: 'repo_overview', repo: 'api-service' } },
-      { text: 'TypeScript React frontend', score: 0.72, metadata: { type: 'repo_overview', repo: 'ui-app' } },
-      { text: 'Barely relevant content', score: 0.28, metadata: { type: 'commit', repo: 'misc-repo' } },
-      { text: 'Completely unrelated', score: 0.15, metadata: { type: 'issue', repo: 'other-repo' } },
+      { text: 'Python FastAPI backend', score: 0.85, metadata: { type: 'repo_overview', source: 'github', repo: 'api-service' } },
+      { text: 'TypeScript React frontend', score: 0.72, metadata: { type: 'repo_overview', source: 'github', repo: 'ui-app' } },
+      { text: 'Barely relevant content', score: 0.28, metadata: { type: 'commit', source: 'github', repo: 'misc-repo' } },
+      { text: 'Completely unrelated', score: 0.15, metadata: { type: 'issue', source: 'github', repo: 'other-repo' } },
     ] as SearchResult[]),
     isReady: () => true,
   }),
@@ -24,14 +24,14 @@ describe('retrieveContext', () => {
     vi.clearAllMocks()
   })
 
-  it('filters out chunks below the 0.3 score threshold', async () => {
+  it('filters out chunks below the 0.25 score threshold', async () => {
     const { retrieveContext } = await import('@/lib/rag/retriever')
     const result = await retrieveContext('tell me about your projects')
 
-    // Scores 0.28 and 0.15 should be filtered out
+    // Score 0.15 should be filtered out
     const scores = result.chunks.map((c) => c.score)
-    expect(scores.every((s) => s >= 0.3)).toBe(true)
-    expect(result.chunks).toHaveLength(2) // Only the 0.85 and 0.72 chunks
+    expect(scores.every((s) => s >= 0.25)).toBe(true)
+    expect(result.chunks).toHaveLength(3)
   })
 
   it('respects the topK parameter', async () => {
@@ -57,7 +57,7 @@ describe('retrieveContext', () => {
     const result = await retrieveContext('backend experience')
 
     expect(typeof result.contextText).toBe('string')
-    expect(result.contextText).toContain('[Source:')
+    expect(result.contextText).toContain('[S1]')
     expect(result.contextText).toContain('Python FastAPI')
   })
 
@@ -68,7 +68,7 @@ describe('retrieveContext', () => {
     const result = await retrieveContext('some question', { minScore: 0.99 })
 
     expect(result.chunks).toHaveLength(0)
-    expect(result.contextText).toContain('No relevant context')
+    expect(result.contextText).toBe('')
   })
 
   it('uses minScore option to override threshold', async () => {

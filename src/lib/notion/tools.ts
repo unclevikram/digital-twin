@@ -2,11 +2,12 @@ import { tool } from 'ai'
 import { z } from 'zod'
 import { notionClient } from './client'
 import { NotionToMarkdown } from 'notion-to-md'
+import { env } from '@/lib/env'
 
 const n2m = new NotionToMarkdown({ notionClient })
 
 export function buildNotionTools() {
-  if (!process.env.NOTION_API_KEY) {
+  if (!env.NOTION_API_KEY) {
     return {}
   }
 
@@ -58,13 +59,29 @@ export function buildNotionTools() {
       execute: async ({ pageId }) => {
         try {
             const mdblocks = await n2m.pageToMarkdown(pageId)
-            const mdString = n2m.toMarkdownString(mdblocks)
-            
-            return `Page Content:\n${mdString.parent.slice(0, 5000)}`
+            const markdown = extractMarkdownText(n2m.toMarkdownString(mdblocks))
+            if (!markdown.trim()) {
+              return 'Page content is empty or unsupported by the current Notion markdown converter.'
+            }
+
+            return `Page Content:\n${markdown.slice(0, 5000)}`
         } catch (err) {
             return `Failed to read Notion page: ${err}`
         }
       }
     })
   }
+}
+
+function extractMarkdownText(markdownOutput: unknown): string {
+  if (typeof markdownOutput === 'string') return markdownOutput
+  if (
+    typeof markdownOutput === 'object' &&
+    markdownOutput !== null &&
+    'parent' in markdownOutput &&
+    typeof (markdownOutput as { parent?: unknown }).parent === 'string'
+  ) {
+    return (markdownOutput as { parent: string }).parent
+  }
+  return ''
 }

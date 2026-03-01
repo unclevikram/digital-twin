@@ -126,11 +126,13 @@ class VectraVectorStore implements VectorStore {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return filtered.map((result: any) => ({
+      id: result.item.metadata._id as string | undefined,
       text: result.item.metadata.text as string,
       score: result.score as number,
       metadata: {
         type: result.item.metadata.type,
         source: result.item.metadata.source,
+        visibility: result.item.metadata.visibility,
         repo: result.item.metadata.repo,
         pageId: result.item.metadata.pageId,
         title: result.item.metadata.title,

@@ -49,8 +49,12 @@ async function testNotion() {
       console.log(`\n📄 Page: ${title} (${page.id})`)
       
       const mdblocks = await n2m.pageToMarkdown(page.id)
-      const mdString = n2m.toMarkdownString(mdblocks)
-      console.log(`   Content preview: ${mdString.parent.slice(0, 100).replace(/\n/g, ' ')}...`)
+      const markdown = extractMarkdownText(n2m.toMarkdownString(mdblocks))
+      if (!markdown.trim()) {
+        console.log('   Content preview: <empty or unsupported markdown output>')
+        continue
+      }
+      console.log(`   Content preview: ${markdown.slice(0, 100).replace(/\n/g, ' ')}...`)
     }
 
   } catch (error) {
@@ -59,3 +63,16 @@ async function testNotion() {
 }
 
 testNotion()
+
+function extractMarkdownText(markdownOutput: unknown): string {
+  if (typeof markdownOutput === 'string') return markdownOutput
+  if (
+    typeof markdownOutput === 'object' &&
+    markdownOutput !== null &&
+    'parent' in markdownOutput &&
+    typeof (markdownOutput as { parent?: unknown }).parent === 'string'
+  ) {
+    return (markdownOutput as { parent: string }).parent
+  }
+  return ''
+}

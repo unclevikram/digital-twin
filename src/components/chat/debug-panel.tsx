@@ -64,6 +64,9 @@ export function DebugPanel({ debugInfo, visible }: DebugPanelProps) {
             <div className="text-xs text-muted-foreground font-mono space-y-0.5">
               <p>Chunks searched: {debugInfo.totalChunksSearched}</p>
               <p>Chunks returned: {debugInfo.chunks.length}</p>
+              <p>
+                Confidence: {debugInfo.confidence.level} ({debugInfo.confidence.score.toFixed(2)})
+              </p>
               {debugInfo.topScores && debugInfo.topScores.length > 0 && (
                 <p>Top raw scores: {debugInfo.topScores.map(s => s.toFixed(3)).join(', ')}</p>
               )}

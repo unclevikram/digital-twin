@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { runIngestionPipeline } from '@/lib/ingestion/pipeline'
 import { getIngestionStatus, setIngestionStatus } from '@/lib/ingestion/status'
+import { getVectorStore } from '@/lib/vector-store'
 
 export const maxDuration = 60
 
@@ -14,6 +15,25 @@ export async function POST(request: NextRequest) {
 
     const userId = session.user.email ?? session.user.name ?? 'default'
     const currentStatus = getIngestionStatus(userId)
+    const isHostedProduction = process.env.VERCEL_ENV === 'production'
+
+    if (isHostedProduction) {
+      const vectorStore = getVectorStore()
+      const vectorStats = await vectorStore.getStats().catch(() => ({ totalChunks: 0 }))
+      setIngestionStatus(userId, {
+        status: 'complete',
+        progress: 100,
+        message:
+          vectorStats.totalChunks > 0
+            ? `Knowledge base already available (${vectorStats.totalChunks} chunks).`
+            : 'Sync request received. Production mode is using bundled index data.',
+        completedAt: new Date().toISOString(),
+      })
+      return NextResponse.json({
+        status: 'queued',
+        message: 'Sync request accepted (production mock mode).',
+      })
+    }
 
     // Prevent duplicate ingestion runs
     if (

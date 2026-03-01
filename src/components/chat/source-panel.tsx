@@ -44,7 +44,8 @@ export function SourcePanel({ sources }: SourcePanelProps) {
 
 function SourceBadge({ source }: { source: ChunkSource }) {
   const label = [
-    source.repo,
+    source.sourceId,
+    source.repo ?? source.title,
     source.type.replace('_', ' '),
     source.date ? new Date(source.date).getFullYear() : '',
   ]

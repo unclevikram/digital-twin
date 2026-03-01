@@ -41,6 +41,7 @@ export function chunkProfile(profile: GitHubProfile): DataChunk[] {
       metadata: {
         type: 'profile',
         source: 'github',
+        visibility: 'public_professional',
         url: profile.htmlUrl,
       },
     },
@@ -70,6 +71,7 @@ export function chunkRepos(repos: RepoData[]): DataChunk[] {
       metadata: {
         type: 'repo_overview' as const,
         source: 'github',
+        visibility: 'public_professional',
         repo: repo.name,
         language: repo.language ?? undefined,
         url: repo.htmlUrl,
@@ -110,6 +112,7 @@ export function chunkReadme(readme: ReadmeData): DataChunk[] {
         metadata: {
           type: 'readme',
           source: 'github',
+          visibility: 'public_professional',
           repo: readme.repo,
           section: extractHeaderText(section),
         },
@@ -133,6 +136,7 @@ export function chunkReadme(readme: ReadmeData): DataChunk[] {
             metadata: {
               type: 'readme',
               source: 'github',
+              visibility: 'public_professional',
               repo: readme.repo,
               section: extractHeaderText(section),
             },
@@ -152,6 +156,8 @@ export function chunkReadme(readme: ReadmeData): DataChunk[] {
           type: 'readme',
           metadata: {
             type: 'readme',
+            source: 'github',
+            visibility: 'public_professional',
             repo: readme.repo,
             section: extractHeaderText(section),
           },
@@ -200,6 +206,7 @@ export function chunkCommits(commits: CommitData[]): DataChunk[] {
         metadata: {
           type: 'commit',
           source: 'github',
+          visibility: 'public_professional',
           repo,
           date: batch[0].date,
           url: batch[0].url,
@@ -226,6 +233,7 @@ export function chunkPullRequests(prs: PRData[]): DataChunk[] {
       metadata: {
         type: 'pull_request' as const,
         source: 'github',
+        visibility: 'public_professional',
         repo: pr.repo,
         date: pr.createdAt,
         url: pr.url,
@@ -249,6 +257,7 @@ export function chunkIssues(issues: IssueData[]): DataChunk[] {
       metadata: {
         type: 'issue' as const,
         source: 'github',
+        visibility: 'public_professional',
         repo: issue.repo,
         date: issue.createdAt,
         url: issue.url,
@@ -281,6 +290,7 @@ export function chunkLanguages(languages: LanguageStats): DataChunk[] {
       metadata: {
         type: 'language_summary',
         source: 'github',
+        visibility: 'public_professional',
       },
     },
   ]
@@ -313,6 +323,7 @@ export function chunkContributions(contributions: ContributionData): DataChunk[]
       metadata: {
         type: 'contribution_summary',
         source: 'github',
+        visibility: 'public_professional',
       },
     },
   ]
