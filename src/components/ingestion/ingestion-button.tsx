@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
+import { useSession } from 'next-auth/react'
 import type { IngestionProgress } from '@/types'
 
 export function IngestionButton() {
+  const { data: session } = useSession()
   const [progress, setProgress] = useState<IngestionProgress>({
     status: 'idle',
     progress: 0,
@@ -18,10 +20,11 @@ export function IngestionButton() {
 
   // Poll for status on mount to check if already running
   useEffect(() => {
+    if (!session) return
     checkStatus()
     const interval = setInterval(checkStatus, 5000)
     return () => clearInterval(interval)
-  }, [])
+  }, [session])
 
   const checkStatus = async () => {
     try {
@@ -36,6 +39,8 @@ export function IngestionButton() {
   }
 
   const startIngestion = async () => {
+    if (!session) return
+
     try {
       if (isHostedProduction) {
         setProgress({
@@ -75,6 +80,8 @@ export function IngestionButton() {
       </div>
     )
   }
+
+  if (!session) return null
 
   return (
     <Button

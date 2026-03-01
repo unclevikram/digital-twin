@@ -1,7 +1,6 @@
-// No middleware auth needed — route handlers enforce their own auth where required.
-// Previously this blocked /api/ingest/status which broke the public status check.
+// Protect /chat route to ensure user is logged in
 export { auth as default } from '@/auth'
 
 export const config = {
-  matcher: [],
+  matcher: ['/chat/:path*'],
 }
