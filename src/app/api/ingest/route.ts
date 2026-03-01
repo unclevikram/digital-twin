@@ -19,19 +19,20 @@ export async function POST(request: NextRequest) {
 
     if (isHostedProduction) {
       const vectorStore = getVectorStore()
-      const vectorStats = await vectorStore.getStats().catch(() => ({ totalChunks: 0 }))
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const vectorStats = await vectorStore.getStats().catch(() => ({ totalChunks: 0 } as any))
       setIngestionStatus(userId, {
         status: 'complete',
         progress: 100,
         message:
           vectorStats.totalChunks > 0
-            ? `Knowledge base already available (${vectorStats.totalChunks} chunks).`
-            : 'Sync request received. Production mode is using bundled index data.',
+            ? `Knowledge base loaded (${vectorStats.totalChunks} chunks). Syncing disabled in production.`
+            : 'Sync disabled in production (read-only file system).',
         completedAt: new Date().toISOString(),
       })
       return NextResponse.json({
         status: 'queued',
-        message: 'Sync request accepted (production mock mode).',
+        message: 'Sync request acknowledged (production mode).',
       })
     }
 

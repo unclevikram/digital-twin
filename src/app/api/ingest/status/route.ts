@@ -9,7 +9,10 @@ export async function GET() {
   try {
     const session = await auth()
     if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      // In production, the IngestionButton polls this endpoint.
+      // If the user's session expires or is invalid, return 200 with "idle" status
+      // instead of 401 to prevent console errors.
+      return NextResponse.json({ status: 'idle', progress: 0, message: 'Not logged in' })
     }
 
     const userId = session.user.email ?? session.user.name ?? 'default'

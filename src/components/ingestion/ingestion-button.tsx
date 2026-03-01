@@ -13,14 +13,13 @@ export function IngestionButton() {
     message: '',
   })
   const [isHovering, setIsHovering] = useState(false)
-  const isHostedProduction =
-    typeof window !== 'undefined' &&
-    process.env.NODE_ENV === 'production' &&
-    !['localhost', '127.0.0.1'].includes(window.location.hostname)
 
   // Poll for status on mount to check if already running
   useEffect(() => {
+    // Poll even if no session initially, to clear any stale state or check status
+    // But we need session to actually see personalized status
     if (!session) return
+
     checkStatus()
     const interval = setInterval(checkStatus, 5000)
     return () => clearInterval(interval)
@@ -42,19 +41,10 @@ export function IngestionButton() {
     if (!session) return
 
     try {
-      if (isHostedProduction) {
-        setProgress({
-          status: 'complete',
-          progress: 100,
-          message: 'Sync request sent. Production is using bundled index data.',
-          completedAt: new Date().toISOString(),
-        })
-        return
-      }
-
       setProgress({ status: 'fetching', progress: 0, message: 'Starting...' })
       await fetch('/api/ingest', { method: 'POST' })
-      // Poll more frequently during active ingestion
+      
+      // Poll frequently for updates
       const interval = setInterval(async () => {
         const res = await fetch('/api/ingest/status')
         if (res.ok) {
@@ -72,6 +62,8 @@ export function IngestionButton() {
 
   const isRunning = ['fetching', 'chunking', 'embedding', 'storing'].includes(progress.status)
 
+  if (!session) return null
+
   if (isRunning) {
     return (
       <div className="flex items-center gap-2 px-3 py-1.5 bg-surface-2 rounded-md border border-amber-500/20 text-xs text-amber-400 font-mono">
@@ -80,8 +72,6 @@ export function IngestionButton() {
       </div>
     )
   }
-
-  if (!session) return null
 
   return (
     <Button
