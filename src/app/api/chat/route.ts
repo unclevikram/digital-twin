@@ -5,6 +5,7 @@ import { z } from 'zod'
 import { retrieveContext } from '@/lib/rag/retriever'
 import { buildSystemPrompt } from '@/lib/rag/prompts'
 import { buildGitHubTools } from '@/lib/github/tools'
+import { buildNotionTools } from '@/lib/notion/tools'
 
 // Vercel: allow up to 60s on Pro, 10s on free tier
 export const maxDuration = 60
@@ -50,6 +51,7 @@ export async function POST(request: NextRequest) {
     const githubToken = process.env.GITHUB_TOKEN!
     const githubLogin = process.env.GITHUB_OWNER_LOGIN!
     const githubTools = buildGitHubTools(githubToken, githubLogin)
+    const notionTools = buildNotionTools()
 
     const result = await streamText({
       model: openaiClient('gpt-4o', { parallelToolCalls: true }),
@@ -58,7 +60,7 @@ export async function POST(request: NextRequest) {
         role: m.role as 'user' | 'assistant',
         content: m.content,
       })),
-      tools: githubTools,
+      tools: { ...githubTools, ...notionTools },
       maxSteps: 5,
       maxTokens: 2000,
       temperature: 0.6,

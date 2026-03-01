@@ -1,6 +1,7 @@
 'use client'
 
 import { Tooltip } from '@/components/ui/tooltip'
+import { IngestionButton } from '@/components/ingestion/ingestion-button'
 
 interface HeaderProps {
   debugMode: boolean
@@ -19,7 +20,10 @@ export function Header({ debugMode, onToggleDebug }: HeaderProps) {
         </div>
 
         {/* Debug toggle */}
-        <Tooltip content={debugMode ? 'Hide debug panel' : 'Show RAG debug'}>
+        <div className="flex items-center gap-3">
+          <IngestionButton />
+          
+          <Tooltip content={debugMode ? 'Hide debug panel' : 'Show RAG debug'}>
           <button
             onClick={onToggleDebug}
             className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-mono transition-colors ${
@@ -31,7 +35,8 @@ export function Header({ debugMode, onToggleDebug }: HeaderProps) {
             <span className={`w-1.5 h-1.5 rounded-full ${debugMode ? 'bg-amber-400' : 'bg-muted'}`} />
             debug
           </button>
-        </Tooltip>
+          </Tooltip>
+        </div>
       </div>
     </header>
   )

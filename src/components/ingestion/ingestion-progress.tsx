@@ -105,7 +105,7 @@ export function IngestionProgressCard({ onComplete }: IngestionProgressProps) {
           {progress.status === 'idle' && (
             <>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                I&apos;ll scan your GitHub repositories, commits, pull requests, and READMEs to build
+                I'll scan your GitHub repositories, commits, pull requests, READMEs, and Notion pages (if connected) to build
                 a comprehensive knowledge base — so I can answer questions as you.
               </p>
               <div className="flex flex-col gap-2 text-xs text-muted">
@@ -114,7 +114,7 @@ export function IngestionProgressCard({ onComplete }: IngestionProgressProps) {
                 <span>✓ Generates AI embeddings for fast retrieval</span>
               </div>
               <Button onClick={startIngestion} loading={isStarting} className="w-full">
-                Sync GitHub Data
+                Sync Data (GitHub + Notion)
               </Button>
             </>
           )}

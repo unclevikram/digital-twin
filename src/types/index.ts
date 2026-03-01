@@ -87,10 +87,15 @@ export type ChunkType =
   | 'issue'
   | 'contribution_summary'
   | 'language_summary'
+  | 'notion_page'
+  | 'notion_database'
 
 export interface ChunkMetadata {
   type: ChunkType
-  repo?: string
+  source: 'github' | 'notion'
+  repo?: string // For GitHub
+  pageId?: string // For Notion
+  title?: string // For Notion
   date?: string
   language?: string
   url?: string

@@ -53,8 +53,14 @@ function formatChunk(result: SearchResult): string {
 function buildSourceLabel(result: SearchResult): string {
   const parts: string[] = []
 
-  if (result.metadata.repo) parts.push(result.metadata.repo)
-  parts.push(result.metadata.type.replace(/_/g, ' '))
+  if (result.metadata.source === 'notion') {
+    parts.push('Notion')
+    if (result.metadata.title) parts.push(result.metadata.title)
+  } else {
+    if (result.metadata.repo) parts.push(result.metadata.repo)
+    parts.push(result.metadata.type.replace(/_/g, ' '))
+  }
+
   if (result.metadata.date) {
     parts.push(
       new Date(result.metadata.date).toLocaleDateString('en-US', {

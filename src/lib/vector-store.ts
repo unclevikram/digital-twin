@@ -130,7 +130,10 @@ class VectraVectorStore implements VectorStore {
       score: result.score as number,
       metadata: {
         type: result.item.metadata.type,
+        source: result.item.metadata.source,
         repo: result.item.metadata.repo,
+        pageId: result.item.metadata.pageId,
+        title: result.item.metadata.title,
         date: result.item.metadata.date,
         language: result.item.metadata.language,
         url: result.item.metadata.url,

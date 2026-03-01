@@ -1,0 +1,27 @@
+[
+  {
+    "question": "What is your primary programming language?",
+    "expected_answer_keywords": ["TypeScript", "JavaScript", "Python", "Go", "Rust", "Jupyter"],
+    "criteria": "The answer should identify the primary language based on repo stats."
+  },
+  {
+    "question": "What have you been working on recently?",
+    "expected_answer_keywords": ["commit", "repository", "project", "feature"],
+    "criteria": "The answer should mention specific repositories or recent commits/PRs."
+  },
+  {
+    "question": "Do you have any experience with React?",
+    "expected_answer_keywords": ["React", "frontend", "component", "hook"],
+    "criteria": "The answer should confirm or deny based on the codebase analysis."
+  },
+  {
+    "question": "Tell me about a challenging bug you fixed.",
+    "expected_answer_keywords": ["bug", "fix", "issue", "debug", "refactor"],
+    "criteria": "The answer should describe a specific issue or PR if available in the data."
+  },
+  {
+    "question": "What is in my Notion notes?",
+    "expected_answer_keywords": ["Notion", "page", "note", "doc"],
+    "criteria": "The answer should reference content from ingested Notion pages if available, or state that none are found."
+  }
+]

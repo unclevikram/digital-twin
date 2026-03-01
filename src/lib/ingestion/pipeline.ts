@@ -1,4 +1,5 @@
 import { fetchGitHubData } from '@/lib/github/fetcher'
+import { fetchAndChunkNotionPages } from '@/lib/notion/ingest'
 import {
   chunkProfile,
   chunkRepos,
@@ -47,20 +48,26 @@ export async function runIngestionPipeline(
     // Ensure vector-index directory exists
     await fs.mkdir(VECTOR_INDEX_DIR, { recursive: true })
 
-    // ---- Phase 1: Fetch GitHub Data (0-40%) ----
+    // ---- Phase 1: Fetch GitHub & Notion Data (0-40%) ----
     report({
       status: 'fetching',
       progress: 2,
-      message: 'Connecting to GitHub...',
+      message: 'Connecting to GitHub and Notion...',
     })
 
-    const githubData = await fetchGitHubData(accessToken, (fetchProgress) => {
-      const mappedProgress = 2 + Math.round(fetchProgress.percentage * 0.38)
-      updateIngestionProgress(userId, {
-        progress: mappedProgress,
-        message: fetchProgress.step,
+    const [githubData, notionChunks] = await Promise.all([
+      fetchGitHubData(accessToken, (fetchProgress) => {
+        const mappedProgress = 2 + Math.round(fetchProgress.percentage * 0.38)
+        updateIngestionProgress(userId, {
+          progress: mappedProgress,
+          message: fetchProgress.step,
+        })
+      }),
+      fetchAndChunkNotionPages().catch(err => {
+        console.error('Failed to fetch Notion pages:', err)
+        return []
       })
-    })
+    ])
 
     // Persist raw data for debugging and decoupled re-ingestion
     await fs.writeFile(RAW_DATA_PATH, JSON.stringify(githubData, null, 2), 'utf-8')
@@ -82,6 +89,7 @@ export async function runIngestionPipeline(
       ...chunkIssues(githubData.issues),
       ...chunkLanguages(githubData.languages),
       ...chunkContributions(githubData.contributions),
+      ...notionChunks,
     ]
 
     console.log(`[Pipeline] Created ${allChunks.length} chunks`)

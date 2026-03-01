@@ -1,0 +1,34 @@
+[
+  {
+    "question": "What is your primary programming language?",
+    "answer": "My primary programming language, based on my GitHub repositories, is Jupyter Notebook, which accounts for 50.3% of my work.",
+    "score": 4,
+    "reasoning": "The answer is grounded in the provided context, as it correctly identifies Jupyter Notebook as the primary programming language based on the GitHub repository statistics. It is relevant to the user's question about the primary programming language. However, it lacks completeness because it does not mention other significant languages like TypeScript, Python, or JavaScript, which are also part of the expected keywords. Including these would provide a more comprehensive view of the language usage.",
+    "retrievalTime": 1430,
+    "chunksFound": 10
+  },
+  {
+    "question": "What have you been working on recently?",
+    "answer": "Recently, I've been working on the `anlp-final-project`. The most recent commits from November 2025 include adding office hours prep docs and critical analysis, as well as syncing local changes. This project seems to be actively updated with various datasets and documentation enhancements. If you need more specific details about this project or any other recent work, feel free to ask!",
+    "score": 3,
+    "reasoning": "The answer is partially grounded in the provided context, as it correctly identifies the 'anlp-final-project' and mentions recent commits from November 2025. However, the context does not support the claim that the project is 'actively updated' since the latest commit is from November 2025, which is in the future relative to the current date. The answer is relevant to the user's question about recent work, but it lacks completeness as it does not mention other recent projects or commits, such as the 'product-review-engine' with commits from August 2023, which are more recent than the 'anlp-final-project'.",
+    "retrievalTime": 1146,
+    "chunksFound": 10
+  },
+  {
+    "question": "Do you have any experience with React?",
+    "answer": "Yes, I have experience with React. One of my projects, `blog-react`, is a React blog app that I developed. This project was bootstrapped with Create React App, which is a common starting point for React applications. You can find more details about this project on its [GitHub repository](https://github.com/unclevikram/blog-react).",
+    "score": 4,
+    "reasoning": "The answer is well-grounded in the provided context, as it references the 'blog-react' project, which is indeed a React app bootstrapped with Create React App. It is relevant to the user's question about experience with React, as it confirms the presence of a React project. However, the answer could be more complete by mentioning specific React concepts or features used in the project, such as components or hooks, to better align with the expected keywords and provide a more detailed confirmation of experience.",
+    "retrievalTime": 1016,
+    "chunksFound": 10
+  },
+  {
+    "question": "Tell me about a challenging bug you fixed.",
+    "answer": "I don't have specific details about individual bugs I've fixed, as my current data doesn't include detailed bug tracking or issue logs. However, I can share a general approach I take when tackling challenging bugs.\n\nWhen faced with a difficult bug, I typically start by reproducing the issue in a controlled environment. This helps me understand the conditions under which the bug occurs. I then use debugging tools and logs to trace the execution flow and identify where things go wrong. \n\nFor instance, in projects like the `product-review-engine`, which I last worked on in August 2023, I might have encountered issues related to code refactoring or test failures. In such cases, I would ensure that the refactored code maintains the same functionality and that all tests pass successfully after changes.\n\nIf you have a specific project or bug in mind, I can look into the repository details to provide more context.",
+    "score": 2,
+    "reasoning": "The answer lacks groundedness as it does not reference any specific bug or issue from the provided context. While it mentions a general approach to debugging and references the 'product-review-engine' project, it does not provide specific details about a challenging bug fixed in that or any other project. The response is somewhat relevant as it discusses debugging, but it does not fully answer the user's question about a specific challenging bug. The completeness is lacking because it does not cover key details about a particular bug or fix, which was expected based on the evaluation criteria.",
+    "retrievalTime": 786,
+    "chunksFound": 10
+  }
+]
