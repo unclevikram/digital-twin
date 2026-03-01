@@ -1,10 +1,11 @@
 import OpenAI from 'openai'
+import { env } from '@/lib/env'
 
 let _client: OpenAI | null = null
 
 function getClient(): OpenAI {
   if (!_client) {
-    _client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! })
+    _client = new OpenAI({ apiKey: env.OPENAI_API_KEY })
   }
   return _client
 }

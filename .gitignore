@@ -38,5 +38,5 @@ next-env.d.ts
 # scripts output
 *.json.tmp
 
-# raw GitHub fetch cache (may contain private repo data / personal info)
-/vector-index/raw-github-data.json
+# raw GitHub fetch cache and vector index
+/vector-index/

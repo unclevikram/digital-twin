@@ -1,5 +1,6 @@
 import OpenAI from 'openai'
 import { sleep } from '@/lib/utils'
+import { env } from '@/lib/env'
 
 const EMBEDDING_MODEL = 'text-embedding-3-small'
 const EMBEDDING_DIMENSIONS = 1536
@@ -10,7 +11,7 @@ let _openaiClient: OpenAI | null = null
 
 function getClient(): OpenAI {
   if (!_openaiClient) {
-    _openaiClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! })
+    _openaiClient = new OpenAI({ apiKey: env.OPENAI_API_KEY })
   }
   return _openaiClient
 }

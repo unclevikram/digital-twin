@@ -19,6 +19,10 @@ export function filterChunksForProfessionalUse(
     if (visibility === 'sensitive' || visibility === 'private_personal') return false
 
     const text = chunk.text ?? ''
+    // If the chunk is marked as public_professional, we trust the metadata over the content heuristic
+    // unless the heuristic is extremely strong (like SSN, etc - which are not in PERSONAL_HINTS yet)
+    if (visibility === 'public_professional') return true
+    
     if (PERSONAL_HINTS.some((re) => re.test(text))) return false
 
     return true

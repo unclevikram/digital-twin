@@ -73,8 +73,11 @@ describe('retrieveContext', () => {
 
   it('uses minScore option to override threshold', async () => {
     const { retrieveContext } = await import('@/lib/rag/retriever')
-    // With minScore 0.7, only the 0.85 chunk should pass
-    const result = await retrieveContext('query', { minScore: 0.7, topK: 5 })
-    expect(result.chunks.every((c) => c.score >= 0.7)).toBe(true)
+    // With minScore 0.8, only the 0.85 chunk should pass (0.72 < 0.8)
+    const result = await retrieveContext('query', { minScore: 0.8, topK: 5 })
+    
+    expect(result.chunks.length).toBe(1)
+    expect(result.chunks[0].score).toBe(0.85)
+    expect(result.chunks.every((c) => c.score >= 0.8)).toBe(true)
   })
 })

@@ -20,7 +20,8 @@ function makeResult(
 
 describe('buildContext', () => {
   it('returns empty string for empty results', () => {
-    expect(buildContext([])).toBe('')
+    const { contextText } = buildContext([])
+    expect(contextText).toBe('')
   })
 
   it('orders chunks by relevance score (highest first)', () => {
@@ -29,19 +30,19 @@ describe('buildContext', () => {
       makeResult('High relevance text', 0.9),
       makeResult('Medium relevance text', 0.6),
     ]
-    const context = buildContext(results)
-    const highIdx = context.indexOf('High relevance')
-    const medIdx = context.indexOf('Medium relevance')
-    const lowIdx = context.indexOf('Low relevance')
+    const { contextText } = buildContext(results)
+    const highIdx = contextText.indexOf('High relevance')
+    const medIdx = contextText.indexOf('Medium relevance')
+    const lowIdx = contextText.indexOf('Low relevance')
     expect(highIdx).toBeLessThan(medIdx)
     expect(medIdx).toBeLessThan(lowIdx)
   })
 
   it('includes source markers for each chunk', () => {
     const results = [makeResult('Some text about Python', 0.8, { type: 'repo_overview', repo: 'my-app' })]
-    const context = buildContext(results)
-    expect(context).toContain('[Source:')
-    expect(context).toContain('my-app')
+    const { contextText } = buildContext(results)
+    expect(contextText).toContain('[Source:')
+    expect(contextText).toContain('my-app')
   })
 
   it('deduplicates overlapping chunks', () => {
@@ -51,9 +52,9 @@ describe('buildContext', () => {
       makeResult(sharedText + ' Extra detail A.', 0.9),
       makeResult(sharedText + ' Extra detail B.', 0.7),
     ]
-    const context = buildContext(results)
+    const { contextText } = buildContext(results)
     // The first (higher score) occurrence should appear, second should be deduplicated
-    const count = (context.match(/REST API built with FastAPI/g) ?? []).length
+    const count = (contextText.match(/REST API built with FastAPI/g) ?? []).length
     expect(count).toBe(1)
   })
 
@@ -62,9 +63,9 @@ describe('buildContext', () => {
     const results = Array.from({ length: 20 }, (_, i) =>
       makeResult('a'.repeat(400) + ` chunk-${i}`, 0.8 - i * 0.01),
     )
-    const context = buildContext(results)
+    const { contextText } = buildContext(results)
     // 2000 tokens ≈ 8000 chars — context should not greatly exceed this
-    expect(context.length).toBeLessThan(12000)
+    expect(contextText.length).toBeLessThan(12000)
   })
 
   it('formats source markers with repo and type', () => {
@@ -75,15 +76,15 @@ describe('buildContext', () => {
         date: '2024-06-01T00:00:00Z',
       }),
     ]
-    const context = buildContext(results)
-    expect(context).toContain('auth-service')
-    expect(context).toContain('commit')
+    const { contextText } = buildContext(results)
+    expect(contextText).toContain('auth-service')
+    expect(contextText).toContain('commit')
   })
 
   it('handles single result correctly', () => {
     const results = [makeResult('Only one chunk of content here', 0.85)]
-    const context = buildContext(results)
-    expect(context).toContain('Only one chunk')
-    expect(context).toContain('[Source:')
+    const { contextText } = buildContext(results)
+    expect(contextText).toContain('Only one chunk')
+    expect(contextText).toContain('[Source:')
   })
 })

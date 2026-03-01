@@ -38,6 +38,8 @@ class VectraVectorStore implements VectorStore {
   }
 
   async initialize(): Promise<void> {
+    if (this.ready) return
+
     try {
       // Dynamic import to avoid issues with Next.js module resolution
       const { LocalIndex } = await import('vectra')
@@ -64,13 +66,12 @@ class VectraVectorStore implements VectorStore {
     chunks: Array<{ id: string; text: string; embedding: number[]; metadata: ChunkMetadata }>,
   ): Promise<void> {
     if (!this.ready) await this.initialize()
+    if (!this.index) throw new Error('Vector index not initialized')
 
     // Get existing items to support upsert behavior
     const existingItems = await this.index.listItems()
-    const existingIds = new Set(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      existingItems.map((item: any) => item.metadata?._id as string).filter(Boolean),
-    )
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const existingIds = new Set(existingItems.map((item: any) => item.metadata?._id as string).filter(Boolean))
 
     let added = 0
     let updated = 0
@@ -78,14 +79,12 @@ class VectraVectorStore implements VectorStore {
     for (const chunk of chunks) {
       if (existingIds.has(chunk.id)) {
         // Delete existing item before re-inserting (upsert behavior)
-        const existing = existingItems.find(
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (item: any) => item.metadata?._id === chunk.id,
-        )
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const existing = existingItems.find((item: any) => item.metadata?._id === chunk.id)
         if (existing) {
           await this.index.deleteItem(existing.id)
+          updated++
         }
-        updated++
       } else {
         added++
       }
@@ -109,12 +108,14 @@ class VectraVectorStore implements VectorStore {
     filter?: Partial<ChunkMetadata>,
   ): Promise<SearchResult[]> {
     if (!this.ready) await this.initialize()
+    if (!this.index) throw new Error('Vector index not initialized')
 
     console.log('[VectorStore] queryItems called, indexDir:', this.indexDir, 'topK*3:', topK * 3, 'vectorLen:', queryEmbedding.length)
     const results = await this.index.queryItems(queryEmbedding, topK * 3)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     console.log('[VectorStore] queryItems returned', results.length, 'raw results, top scores:', results.slice(0, 3).map((r: any) => r.score?.toFixed(4)))
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const filtered = results
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .filter((result: any) => {
@@ -134,7 +135,6 @@ class VectraVectorStore implements VectorStore {
         source: result.item.metadata.source,
         visibility: result.item.metadata.visibility,
         repo: result.item.metadata.repo,
-        pageId: result.item.metadata.pageId,
         title: result.item.metadata.title,
         date: result.item.metadata.date,
         language: result.item.metadata.language,
@@ -153,6 +153,7 @@ class VectraVectorStore implements VectorStore {
         return { totalChunks: 0, chunksByType: {} }
       }
     }
+    if (!this.index) return { totalChunks: 0, chunksByType: {} }
 
     const items = await this.index.listItems()
     const chunksByType: Record<string, number> = {}
@@ -171,6 +172,8 @@ class VectraVectorStore implements VectorStore {
 
   async clear(): Promise<void> {
     if (!this.ready) await this.initialize()
+    if (!this.index) return
+
     const items = await this.index.listItems()
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     for (const item of items) {

@@ -33,14 +33,27 @@ export class RateLimiter {
   /**
    * Update rate limit state from response headers.
    */
-  updateFromHeaders(headers: Record<string, string | number | undefined>): void {
+  updateFromHeaders(headers: Record<string, string | number | undefined> | undefined): void {
+    if (!headers) return
+
     const remaining = headers['x-ratelimit-remaining']
     const reset = headers['x-ratelimit-reset']
     const limit = headers['x-ratelimit-limit']
+    
+    if (remaining !== undefined) {
+       const val = Number(remaining)
+       if (!isNaN(val)) this.state.remaining = val
+    }
 
-    if (remaining !== undefined) this.state.remaining = Number(remaining)
-    if (reset !== undefined) this.state.reset = Number(reset) * 1000
-    if (limit !== undefined) this.state.limit = Number(limit)
+    if (reset !== undefined) {
+       const val = Number(reset)
+       if (!isNaN(val)) this.state.reset = val * 1000
+    }
+
+    if (limit !== undefined) {
+       const val = Number(limit)
+       if (!isNaN(val)) this.state.limit = val
+    }
 
     if (this.state.remaining < this.lowLimitThreshold) {
       console.warn(
@@ -56,10 +69,17 @@ export class RateLimiter {
    */
   async wait(): Promise<void> {
     if (this.state.remaining <= 0) {
-      const waitMs = Math.max(0, this.state.reset - Date.now()) + 1000
-      console.warn(`[RateLimiter] Rate limit exhausted. Waiting ${waitMs}ms until reset.`)
-      await sleep(waitMs)
-      return
+       const now = Date.now()
+       if (now < this.state.reset) {
+          const waitMs = this.state.reset - now + 1000
+          console.warn(`[RateLimiter] Rate limit exhausted. Waiting ${waitMs}ms until reset.`)
+          await sleep(waitMs)
+       } else {
+           // Reset time passed, but we need to make a request to get new headers
+           // Just wait default delay
+           await sleep(this.defaultDelayMs)
+       }
+       return
     }
 
     if (this.state.remaining < this.lowLimitThreshold) {
