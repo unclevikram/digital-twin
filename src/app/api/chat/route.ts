@@ -7,6 +7,7 @@ import { retrieveContext } from '@/lib/rag/retriever'
 import { buildContext } from '@/lib/rag/context-builder'
 import { buildSystemPrompt } from '@/lib/rag/prompts'
 import { buildGitHubTools } from '@/lib/github/tools'
+import { buildNotionTools } from '@/lib/notion/tools'
 import { env } from '@/lib/env'
 import { evaluateQuerySafety, buildSafetyAddendum } from '@/lib/safety/policy'
 import { filterChunksForProfessionalUse } from '@/lib/safety/chunk-filter'
@@ -103,6 +104,13 @@ export async function POST(request: NextRequest) {
     const githubToken = session.accessToken
     const githubLogin = session.user.login
     const githubTools = buildGitHubTools(githubToken, githubLogin)
+    const allowNotionTools = /\bnotion|notes|docs|research|project\b/i.test(queryText)
+    
+    const tools: Record<string, any> = { ...githubTools }
+    if (allowNotionTools) {
+      const notionTools = buildNotionTools()
+      Object.assign(tools, notionTools)
+    }
 
     const result = await streamText({
       model: openaiClient('gpt-4o', { parallelToolCalls: true }),
@@ -111,7 +119,7 @@ export async function POST(request: NextRequest) {
         role: m.role as 'user' | 'assistant',
         content: m.content,
       })),
-      tools: { ...githubTools },
+      tools,
       maxSteps: isImplementationDeepDive ? 8 : 5,
       maxTokens: 2000,
       temperature: lowConfidence ? 0.3 : 0.55,

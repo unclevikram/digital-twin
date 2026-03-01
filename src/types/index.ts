@@ -15,7 +15,7 @@ export interface Message {
 
 export interface ChunkSource {
   sourceId: string
-  source: 'github'
+  source: 'github' | 'notion'
   title?: string
   repo?: string
   type: string
@@ -42,7 +42,7 @@ export interface RetrievalDebugInfo {
   confidence: RetrievalConfidence
   chunks: Array<{
     sourceId: string
-    source: 'github'
+    source: 'github' | 'notion'
     text: string
     score: number
     type: string
@@ -105,13 +105,16 @@ export type ChunkType =
   | 'issue'
   | 'contribution_summary'
   | 'language_summary'
+  | 'notion_page'
+  | 'notion_database'
 
 export interface ChunkMetadata {
   type: ChunkType
-  source: 'github'
+  source: 'github' | 'notion'
   visibility?: 'public_professional' | 'private_personal' | 'sensitive'
   repo?: string // For GitHub
-  title?: string
+  pageId?: string // For Notion
+  title?: string // For Notion
   date?: string
   language?: string
   url?: string

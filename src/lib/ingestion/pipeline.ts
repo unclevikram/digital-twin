@@ -1,4 +1,5 @@
 import { fetchGitHubData } from '@/lib/github/fetcher'
+import { fetchAndChunkNotionPages } from '@/lib/notion/ingest'
 import {
   chunkProfile,
   chunkRepos,
@@ -54,7 +55,7 @@ export async function runIngestionPipeline(
       message: 'Connecting to GitHub and Notion...',
     })
 
-    const [githubData] = await Promise.all([
+    const [githubData, notionChunks] = await Promise.all([
       fetchGitHubData(accessToken, (fetchProgress) => {
         const mappedProgress = 2 + Math.round(fetchProgress.percentage * 0.38)
         updateIngestionProgress(userId, {
@@ -62,6 +63,10 @@ export async function runIngestionPipeline(
           message: fetchProgress.step,
         })
       }),
+      fetchAndChunkNotionPages().catch(err => {
+        console.error('Failed to fetch Notion pages:', err)
+        return []
+      })
     ])
 
     // Persist raw data for debugging and decoupled re-ingestion
@@ -84,6 +89,7 @@ export async function runIngestionPipeline(
       ...chunkIssues(githubData.issues),
       ...chunkLanguages(githubData.languages),
       ...chunkContributions(githubData.contributions),
+      ...notionChunks,
     ]
 
     console.log(`[Pipeline] Created ${allChunks.length} chunks`)
