@@ -23,7 +23,7 @@ Built as part of the Viven Engineering take-home assignment, deep-diving into **
 │                                              ↓           │
 │                                       System Prompt      │
 │                                              ↓           │
-│                                     gpt-4o-mini (stream) │
+│                                     gpt-4o (stream)       │
 │                                              ↓           │
 │                                     First-person response│
 └─────────────────────────────────────────────────────────┘
@@ -48,13 +48,17 @@ Open [http://localhost:3000](http://localhost:3000), sign in with GitHub, and cl
 
 Copy `.env.example` to `.env.local` and fill in:
 
-| Variable | Description | How to get it |
-|----------|-------------|---------------|
-| `AUTH_GITHUB_ID` | GitHub OAuth App Client ID | [github.com/settings/developers](https://github.com/settings/developers) → New OAuth App |
-| `AUTH_GITHUB_SECRET` | GitHub OAuth App Client Secret | Same page, after creating the app |
-| `AUTH_SECRET` | Auth.js signing secret (≥32 chars) | `openssl rand -hex 32` |
-| `OPENAI_API_KEY` | OpenAI API key | [platform.openai.com/api-keys](https://platform.openai.com/api-keys) |
-| `NEXT_PUBLIC_APP_URL` | App URL (default: `http://localhost:3000`) | Change for production |
+| Variable | Required | Description | How to get it |
+|----------|----------|-------------|---------------|
+| `AUTH_GITHUB_ID` | ✅ | GitHub OAuth App Client ID | [github.com/settings/developers](https://github.com/settings/developers) → New OAuth App |
+| `AUTH_GITHUB_SECRET` | ✅ | GitHub OAuth App Client Secret | Same page, after creating the app |
+| `AUTH_SECRET` | ✅ | Auth.js signing secret (≥32 chars) | `openssl rand -hex 32` |
+| `AUTH_URL` | ✅ | Auth.js base URL for OAuth callback | `http://localhost:3000` (change for production) |
+| `OPENAI_API_KEY` | ✅ | OpenAI API key (must start with `sk-`) | [platform.openai.com/api-keys](https://platform.openai.com/api-keys) |
+| `NEXT_PUBLIC_APP_URL` | ✅ | App URL | Default: `http://localhost:3000` |
+| `NOTION_API_KEY` | ☑️ optional | Notion integration API key | [notion.so/my-integrations](https://www.notion.so/my-integrations) |
+| `GITHUB_TOKEN` | ☑️ optional | Server-side GitHub PAT for live tool calls | Personal Access Token with `repo` + `read:user` |
+| `GITHUB_LOGIN` | ☑️ optional | Your GitHub username (for live tool calls) | Your GitHub handle, e.g. `unclevikram` |
 
 ### GitHub OAuth App Setup
 
@@ -121,11 +125,19 @@ Each data type gets a purpose-built chunking strategy (see [`src/lib/ingestion/c
 
 Chunks have **deterministic IDs** (hash of type + repo + index), enabling upsert behavior on re-ingestion.
 
+### Notion Integration
+
+Notion pages are fetched and ingested alongside GitHub data during the sync step. Set `NOTION_API_KEY` in `.env.local` and share the relevant pages with your integration. The twin can then answer questions grounded in your notes and docs.
+
+- `src/lib/notion/ingest.ts` — fetches up to 20 most recently edited pages, converts to markdown via `notion-to-md`, and chunks at 500 tokens
+- `src/lib/notion/tools.ts` — two live tools (`fetchNotionPages`, `readNotionPage`) available to the LLM during chat
+- Notion chunks carry a `visibility` classification (`public_professional`, `private_personal`, `sensitive`) inferred from content keywords — `sensitive` chunks are never injected into the LLM context
+
 ### Extensible Architecture
 
-Adding a new data source (Google Calendar, Notion, Linear) requires:
-1. A new fetcher function in `src/lib/github/` (or a new `src/lib/{source}/`)
-2. A new chunking function in `src/lib/ingestion/chunker.ts`
+Adding a new data source (Google Calendar, Linear, etc.) requires:
+1. A new fetcher/client in `src/lib/{source}/`
+2. A new chunking function (or reuse the paragraph chunker pattern from `src/lib/notion/ingest.ts`)
 3. Wiring into the pipeline in `src/lib/ingestion/pipeline.ts`
 
 The `VectorStore` interface and embedding layer are fully source-agnostic.
@@ -150,7 +162,7 @@ npm run seed
 npm run dev
 ```
 
-The seed script generates ~50 realistic chunks representing a typical developer profile.
+The seed script generates ~20 realistic chunks across 5 synthetic repos (Go API gateway, FastAPI boilerplate, Kafka event stream, k8s scripts, this project).
 
 ---
 
@@ -161,7 +173,7 @@ The seed script generates ~50 realistic chunks representing a typical developer 
 | Framework | Next.js 14 (App Router, TypeScript) |
 | Auth | Auth.js v5 (`next-auth@beta`) + GitHub OAuth |
 | GitHub API | `@octokit/rest` (REST) + `@octokit/graphql` (GraphQL) |
-| LLM | OpenAI `gpt-4o-mini` via Vercel AI SDK |
+| LLM | OpenAI `gpt-4o` (chat) + `gpt-4o-mini` (query expansion) via Vercel AI SDK |
 | Embeddings | OpenAI `text-embedding-3-small` (1536 dims) |
 | Vector Store | Vectra (file-backed, zero infrastructure) |
 | Styling | Tailwind CSS 3 + "Terminal Luxe" design system |
@@ -175,7 +187,7 @@ The seed script generates ~50 realistic chunks representing a typical developer 
 1. Push to GitHub, connect repo to Vercel
 2. Set all env vars in Vercel dashboard (same as `.env.example`)
 3. Update GitHub OAuth App callback URL to production domain
-4. **Important:** The Vectra vector index is ephemeral on Vercel (filesystem resets on cold starts). Re-ingestion is needed after cold starts. For production, swap Vectra for Pinecone using the `VectorStore` interface.
+4. **Important:** The Vectra vector index is ephemeral on Vercel (filesystem resets on cold starts). For production, swap Vectra for a persistent vector store using the `VectorStore` interface — [Upstash Vector](https://upstash.com/docs/vector/overall/getstarted) (serverless, zero-infra) or Pinecone are the easiest drop-ins.
 
 ---
 
